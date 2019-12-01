@@ -14,6 +14,7 @@ def run():
     global world
 
     done = False
+    # 学習を打ち切る基準が設定されていないので，ずっと学習を続ける
     while not (done):
         update_world(world, update_timestep)
 

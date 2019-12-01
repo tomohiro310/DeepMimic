@@ -59,16 +59,23 @@ def update_intermediate_buffer():
 
     return
 
+# DeepMimic_Optimizerから呼ばれていて，学習の際に使用されている関数
 def update_world(world, time_elapsed):
     num_substeps = world.env.get_num_update_substeps()
     timestep = time_elapsed / num_substeps
     num_substeps = 1 if (time_elapsed == 0) else num_substeps
+    # 現在の設定だと，
+    # time_elapsed:0.016 (60Hz)
+    # timestep:0.0016 (600Hz)
+    # num_substeps:10
 
     for i in range(num_substeps):
         world.update(timestep)
 
+        # TODO:valid episodeは何の条件に相当するのか？
         valid_episode = world.env.check_valid_episode()
         if valid_episode:
+            # TODO:end episodeは何の条件に相当するのか？
             end_episode = world.env.is_episode_end()
             if (end_episode):
                 world.end_episode()

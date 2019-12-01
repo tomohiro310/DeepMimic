@@ -4,6 +4,7 @@ import learning.tf_util as TFUtil
 from learning.rl_agent import RLAgent
 from util.logger import Logger
 
+# world変数はこのクラスのインスタンスになっている
 class RLWorld(object):
     def __init__(self, env, arg_parser):
         TFUtil.disable_gpu()
@@ -86,6 +87,7 @@ class RLWorld(object):
 
         return
 
+    # agentとenvをtimestepだけupdateする
     def update(self, timestep):
         self._update_agents(timestep)
         self._update_env(timestep)
