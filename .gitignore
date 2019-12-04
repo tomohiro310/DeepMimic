@@ -28,3 +28,4 @@ Backup/
 data/intermediate/
 
 DeepMimicCore/DeepMimicCore.py
+DeepMimicCore/Makefile
