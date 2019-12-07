@@ -17,7 +17,6 @@
 
 .vs/
 __pycache__/
-output/
 x64/
 Debug/
 Release/external/
@@ -29,3 +28,5 @@ data/intermediate/
 
 DeepMimicCore/DeepMimicCore.py
 DeepMimicCore/Makefile
+
+output/*/intermediate
