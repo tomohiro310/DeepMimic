@@ -1,14 +1,34 @@
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 
 def main():
-    data = np.genfromtxt('../output/agent0_log.txt',dtype=None, names=True)
+    folder_lists = os.listdir('../output')
     x_label = 'Samples'
-    y_label = list(data.dtype.names[3:5])
+    # x_label = 'Iteration'
+    y_label_lists = ['Train_Return', 'Test_Return', 'Wall_Time']
+    flag_show_label = True
+    for y_label in y_label_lists:
+        data_x = []
+        data_y = []
+        for folder_name in folder_lists:
+            file_name = '../output/' + folder_name + '/agent0_log.txt'
+            data = np.genfromtxt(file_name,dtype=None, names=True)
+            if flag_show_label:
+                print(data.dtype.names)
+                flag_show_label = False
+            data_x.append(data[x_label])
+            data_y.append(data[y_label])
 
-    plot_graph(data[x_label], np.array(data[y_label].tolist()), x_label, y_label, x_lim = None, y_lim = None, legend = y_label, f_name = None, times_new_roman = False)
+        plot_graph(data_x, data_y, x_label, y_label, x_lim = None, y_lim = None, legend = folder_lists, times_new_roman = False, rc_params = True)
 
-def plot_graph(x, y, x_label, y_label, x_lim = None, y_lim = None, legend = None, f_name = None, times_new_roman = False, rc_params = None):
+    f_name = None
+    if f_name != None:
+        plt.savefig(f_name, bbox_inches="tight", pad_inches=0.05)
+    else:
+        plt.show()
+
+def plot_graph(x, y, x_label, y_label, x_lim = None, y_lim = None, legend = None, times_new_roman = False, rc_params = None):
     if rc_params:
         if times_new_roman:
             import matplotlib.font_manager as fon
@@ -41,12 +61,12 @@ def plot_graph(x, y, x_label, y_label, x_lim = None, y_lim = None, legend = None
 
     fig = plt.figure()
     fig_1 = fig.add_subplot(111)
-    y_shape = y.shape
-    for yn in range(y_shape[1]):
+
+    for num in range(len(x)):
         if legend != None:
-            fig_1.plot(x, y[:, yn], label = legend[yn])
+            fig_1.plot(x[num], y[num], label = legend[num])
         else:
-            fig_1.plot(x, y[:, yn])
+            fig_1.plot(x[num], y[num])
     fig_1.set_xlabel(x_label)
     fig_1.set_ylabel(y_label)
     if x_lim != None:
@@ -55,10 +75,6 @@ def plot_graph(x, y, x_label, y_label, x_lim = None, y_lim = None, legend = None
         fig_1.set_ylim(y_lim[0], y_lim[1])
     if legend != None:
         fig_1.legend()
-    if f_name != None:
-        plt.savefig(f_name, bbox_inches="tight", pad_inches=0.05)
-    else:
-        plt.show()
 
 if __name__ == '__main__':
     main()
