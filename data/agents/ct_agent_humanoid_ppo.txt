@@ -1,13 +1,13 @@
 {
 	"AgentType": "PPO",
 
-	"ActorNet": "fc_2layers_2048units",
+	"ActorNet": "fc_3layers_1024units",
 	"ActorStepsize": 0.0000025,
 	"ActorMomentum": 0.9,
 	"ActorWeightDecay": 0.0005,
 	"ActorInitOutputScale": 0.01,
 
-	"CriticNet": "fc_2layers_2048units",
+	"CriticNet": "fc_3layers_1024units",
 	"CriticStepsize": 0.01,
 	"CriticMomentum": 0.9,
 	"CriticWeightDecay": 0,
