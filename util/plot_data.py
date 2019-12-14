@@ -4,9 +4,10 @@ import matplotlib.pyplot as plt
 
 def main():
     folder_lists = os.listdir('../output')
-    x_label = 'Samples'
-    # x_label = 'Iteration'
-    y_label_lists = ['Train_Return', 'Test_Return', 'Wall_Time']
+    # x_label = 'Wall_Time'
+    x_label = 'Iteration'
+    y_label_lists = ['Train_Return', 'Test_Return', 'Wall_Time', 'Samples']
+    # y_label_lists = ['Iteration', 'Wall_Time', 'Samples', 'Train_Return', 'Test_Return', 'State_Mean', 'State_Std', 'Goal_Mean', 'Goal_Std', 'Exp_Rate', 'Exp_Noise', 'Exp_Temp', 'Critic_Loss', 'Critic_Stepsize', 'Actor_Loss', 'Actor_Stepsize', 'Clip_Frac', 'Adv_Mean', 'Adv_Std']
     flag_show_label = True
     for y_label in y_label_lists:
         data_x = []
