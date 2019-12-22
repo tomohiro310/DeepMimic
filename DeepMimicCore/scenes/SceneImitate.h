@@ -26,7 +26,11 @@ public:
 protected:
 
 	std::string mMotionFile;
+	std::vector<std::string> mMotionFilesForMultiClips;
 	std::shared_ptr<cKinCharacter> mKinChar;
+
+	// for multi clip
+	std::vector<std::shared_ptr<cKinCharacter>> mKinCharsForMultiClips;
 
 	Eigen::VectorXd mJointWeights;
 	bool mEnableRandRotReset;
@@ -43,8 +47,11 @@ protected:
 	virtual bool BuildController(const cCtrlBuilder::tCtrlParams& ctrl_params, std::shared_ptr<cCharController>& out_ctrl);
 	virtual void BuildKinChar();
 	virtual bool BuildKinCharacter(int id, std::shared_ptr<cKinCharacter>& out_char) const;
+	virtual void BuildKinCharsForMultiClips();
+	virtual bool BuildKinCharactersForMultiClips(int id, std::shared_ptr<cKinCharacter>& out_char) const;
 	virtual void UpdateCharacters(double timestep);
 	virtual void UpdateKinChar(double timestep);
+	virtual void SyncKinCharsForMultiClips();
 
 	virtual void ResetCharacters();
 	virtual void ResetKinChar();

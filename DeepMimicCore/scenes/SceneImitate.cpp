@@ -23,7 +23,7 @@ double cSceneImitate::CalcRewardImitate(const cSimCharacter& sim_char, const cKi
 
 	int num_joints = sim_char.GetNumJoints();
 	assert(num_joints == mJointWeights.size());
-	
+
 	const double pose_scale = 2.0 / 15 * num_joints;
 	const double vel_scale = 0.1 / 15 * num_joints;
 	const double end_eff_scale = 10;
@@ -103,7 +103,7 @@ double cSceneImitate::CalcRewardImitate(const cSimCharacter& sim_char, const cKi
 	root_pos0[1] -= root_ground_h0;
 	root_pos1[1] -= root_ground_h1;
 	double root_pos_err = (root_pos0 - root_pos1).squaredNorm();
-	
+
 	double root_rot_err = cMathUtil::QuatDiffTheta(root_rot0, root_rot1);
 	root_rot_err *= root_rot_err;
 
@@ -151,6 +151,7 @@ void cSceneImitate::ParseArgs(const std::shared_ptr<cArgParser>& parser)
 	// std::cout << __func__ << std::endl;
 	cRLSceneSimChar::ParseArgs(parser);
 	parser->ParseString("motion_file", mMotionFile);
+	parser->ParseStrings("motion_files_for_multi_clips", mMotionFilesForMultiClips);
 	parser->ParseBool("enable_rand_rot_reset", mEnableRandRotReset);
 	parser->ParseBool("sync_char_root_pos", mSyncCharRootPos);
 	parser->ParseBool("sync_char_root_rot", mSyncCharRootRot);
@@ -164,6 +165,9 @@ void cSceneImitate::Init()
 	mKinChar.reset();
 	BuildKinChar();
 
+	// For Multi Clips
+	BuildKinCharsForMultiClips();
+
 	cRLSceneSimChar::Init();
 	InitJointWeights();
 }
@@ -175,10 +179,18 @@ double cSceneImitate::CalcReward(int agent_id) const
 	bool fallen = HasFallen(*sim_char);
 
 	double r = 0;
+	std::vector<double> rs(mMotionFilesForMultiClips.size() + 1);
 	int max_id = 0;
 	if (!fallen)
 	{
-		r = CalcRewardImitate(*sim_char, *mKinChar);
+		rs.at(0) = CalcRewardImitate(*sim_char, *mKinChar);
+		for (size_t i = 0; i < mMotionFilesForMultiClips.size(); ++i)
+		{
+			rs.at(i + 1) = CalcRewardImitate(*sim_char, *mKinCharsForMultiClips.at(i));
+		}
+		std::vector<double>::iterator maxIt = std::max_element(rs.begin(), rs.end());
+		max_id = std::distance(rs.begin(), maxIt);
+		r = rs.at(max_id);
 	}
 	return r;
 }
@@ -309,10 +321,52 @@ bool cSceneImitate::BuildKinCharacter(int id, std::shared_ptr<cKinCharacter>& ou
 	return succ;
 }
 
+void cSceneImitate::BuildKinCharsForMultiClips()
+{
+	// std::cout << __func__ << std::endl;
+	const size_t num_kin_chars = mMotionFilesForMultiClips.size();
+	mKinCharsForMultiClips.resize(num_kin_chars);
+	for (size_t i = 0; i < num_kin_chars; i++)
+	{
+		// TODO idはずらすべきなのかよくわからなないけど，とりあえずずらしておく
+		bool succ = BuildKinCharactersForMultiClips(i + 1, mKinCharsForMultiClips.at(i));
+		if (!succ)
+		{
+			printf("Failed to build %dth kin character\n", i);
+			assert(false);
+		}
+	}
+}
+
+bool cSceneImitate::BuildKinCharactersForMultiClips(int id, std::shared_ptr<cKinCharacter>& out_char) const
+{
+	// std::cout << __func__ << std::endl;
+	auto kin_char = std::shared_ptr<cKinCharacter>(new cKinCharacter());
+	const cSimCharacter::tParams& sim_char_params = mCharParams[0];
+	cKinCharacter::tParams kin_char_params;
+
+	kin_char_params.mID = id;
+	kin_char_params.mCharFile = sim_char_params.mCharFile;
+	kin_char_params.mOrigin = sim_char_params.mInitPos;
+	kin_char_params.mLoadDrawShapes = false;
+	kin_char_params.mMotionFile = mMotionFilesForMultiClips.at(id - 1);
+
+	bool succ = kin_char->Init(kin_char_params);
+	if (succ)
+	{
+		out_char = kin_char;
+	}
+	return succ;
+}
+
 void cSceneImitate::UpdateCharacters(double timestep)
 {
 	// std::cout << __func__ << ":" << mUpdateCount << std::endl;
 	UpdateKinChar(timestep);
+
+	// Multi clipsのphaseを揃える
+	SyncKinCharsForMultiClips();
+
 	cRLSceneSimChar::UpdateCharacters(timestep);
 	mUpdateCount += 1;
 }
@@ -331,6 +385,22 @@ void cSceneImitate::UpdateKinChar(double timestep)
 	{
 		const auto& sim_char = GetCharacter();
 		SyncKinCharNewCycle(*sim_char, *kin_char);
+	}
+}
+
+void cSceneImitate::SyncKinCharsForMultiClips()
+{
+	// std::cout << __func__ << std::endl;
+	const auto& kin_char = GetKinChar();
+	const double curr_phase = kin_char->GetPhase();
+	for (size_t i = 0; i < mMotionFilesForMultiClips.size(); ++i)
+	{
+		auto& kin_char_for_multi_clips = mKinCharsForMultiClips.at(i);
+		double curr_time = kin_char_for_multi_clips->GetMotionDuration() * curr_phase;
+
+		// timeを設定したのち，poseも合わせる必要がある
+		kin_char_for_multi_clips->SetTime(curr_time);
+		kin_char_for_multi_clips->Pose(curr_time);
 	}
 }
 
