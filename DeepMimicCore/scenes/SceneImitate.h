@@ -35,6 +35,8 @@ protected:
 	bool mEnableRootRotFail;
 	double mHoldEndFrame;
 
+	size_t mUpdateCount;
+
 	virtual bool BuildCharacters();
 
 	virtual void CalcJointWeights(const std::shared_ptr<cSimCharacter>& character, Eigen::VectorXd& out_weights) const;

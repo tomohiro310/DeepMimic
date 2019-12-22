@@ -3,9 +3,11 @@
 #include "sim/CtController.h"
 #include "util/FileUtil.h"
 #include "util/JsonUtil.h"
+#include <iostream>
 
 double cSceneImitate::CalcRewardImitate(const cSimCharacter& sim_char, const cKinCharacter& kin_char) const
 {
+	// std::cout << __func__ << std::endl;
 	double pose_w = 0.5;
 	double vel_w = 0.05;
 	double end_eff_w = 0.15;
@@ -128,12 +130,16 @@ double cSceneImitate::CalcRewardImitate(const cSimCharacter& sim_char, const cKi
 
 cSceneImitate::cSceneImitate()
 {
+	// std::cout << __func__ << std::endl;
 	mEnableRandRotReset = false;
 	mSyncCharRootPos = true;
 	mSyncCharRootRot = false;
 	mMotionFile = "";
 	mEnableRootRotFail = false;
 	mHoldEndFrame = 0;
+
+	// for debug
+	mUpdateCount = 0;
 }
 
 cSceneImitate::~cSceneImitate()
@@ -142,6 +148,7 @@ cSceneImitate::~cSceneImitate()
 
 void cSceneImitate::ParseArgs(const std::shared_ptr<cArgParser>& parser)
 {
+	// std::cout << __func__ << std::endl;
 	cRLSceneSimChar::ParseArgs(parser);
 	parser->ParseString("motion_file", mMotionFile);
 	parser->ParseBool("enable_rand_rot_reset", mEnableRandRotReset);
@@ -153,6 +160,7 @@ void cSceneImitate::ParseArgs(const std::shared_ptr<cArgParser>& parser)
 
 void cSceneImitate::Init()
 {
+	// std::cout << __func__ << std::endl;
 	mKinChar.reset();
 	BuildKinChar();
 
@@ -162,6 +170,7 @@ void cSceneImitate::Init()
 
 double cSceneImitate::CalcReward(int agent_id) const
 {
+	// std::cout << __func__ << std::endl;
 	const cSimCharacter* sim_char = GetAgentChar(agent_id);
 	bool fallen = HasFallen(*sim_char);
 
@@ -176,16 +185,19 @@ double cSceneImitate::CalcReward(int agent_id) const
 
 const std::shared_ptr<cKinCharacter>& cSceneImitate::GetKinChar() const
 {
+	// std::cout << __func__ << std::endl;
 	return mKinChar;
 }
 
 void cSceneImitate::EnableRandRotReset(bool enable)
 {
+	// std::cout << __func__ << std::endl;
 	mEnableRandRotReset = enable;
 }
 
 bool cSceneImitate::EnabledRandRotReset() const
 {
+	// std::cout << __func__ << std::endl;
 	bool enable = mEnableRandRotReset;
 	return enable;
 }
@@ -212,16 +224,19 @@ cSceneImitate::eTerminate cSceneImitate::CheckTerminate(int agent_id) const
 
 		terminated = (end_motion) ? eTerminateFail : terminated;
 	}
+	// std::cout << __func__ << ":" << terminated << std::endl;
 	return terminated;
 }
 
 std::string cSceneImitate::GetName() const
 {
+	// std::cout << __func__ << std::endl;
 	return "Imitate";
 }
 
 bool cSceneImitate::BuildCharacters()
 {
+	// std::cout << __func__ << std::endl;
 	bool succ = cRLSceneSimChar::BuildCharacters();
 	if (EnableSyncChar())
 	{
@@ -232,6 +247,7 @@ bool cSceneImitate::BuildCharacters()
 
 void cSceneImitate::CalcJointWeights(const std::shared_ptr<cSimCharacter>& character, Eigen::VectorXd& out_weights) const
 {
+	// std::cout << __func__ << std::endl;
 	int num_joints = character->GetNumJoints();
 	out_weights = Eigen::VectorXd::Ones(num_joints);
 	for (int j = 0; j < num_joints; ++j)
@@ -246,6 +262,7 @@ void cSceneImitate::CalcJointWeights(const std::shared_ptr<cSimCharacter>& chara
 
 bool cSceneImitate::BuildController(const cCtrlBuilder::tCtrlParams& ctrl_params, std::shared_ptr<cCharController>& out_ctrl)
 {
+	// std::cout << __func__ << std::endl;
 	bool succ = cSceneSimChar::BuildController(ctrl_params, out_ctrl);
 	if (succ)
 	{
@@ -262,6 +279,7 @@ bool cSceneImitate::BuildController(const cCtrlBuilder::tCtrlParams& ctrl_params
 
 void cSceneImitate::BuildKinChar()
 {
+	// std::cout << __func__ << std::endl;
 	bool succ = BuildKinCharacter(0, mKinChar);
 	if (!succ)
 	{
@@ -272,6 +290,7 @@ void cSceneImitate::BuildKinChar()
 
 bool cSceneImitate::BuildKinCharacter(int id, std::shared_ptr<cKinCharacter>& out_char) const
 {
+	// std::cout << __func__ << std::endl;
 	auto kin_char = std::shared_ptr<cKinCharacter>(new cKinCharacter());
 	const cSimCharacter::tParams& sim_char_params = mCharParams[0];
 	cKinCharacter::tParams kin_char_params;
@@ -292,17 +311,22 @@ bool cSceneImitate::BuildKinCharacter(int id, std::shared_ptr<cKinCharacter>& ou
 
 void cSceneImitate::UpdateCharacters(double timestep)
 {
+	// std::cout << __func__ << ":" << mUpdateCount << std::endl;
 	UpdateKinChar(timestep);
 	cRLSceneSimChar::UpdateCharacters(timestep);
+	mUpdateCount += 1;
 }
 
 void cSceneImitate::UpdateKinChar(double timestep)
 {
+	// std::cout << __func__ << std::endl;
 	const auto& kin_char = GetKinChar();
 	double prev_phase = kin_char->GetPhase();
 	kin_char->Update(timestep);
 	double curr_phase = kin_char->GetPhase();
 
+	// std::cout << __func__ << ", prev_phase:" << prev_phase << ", curr_phase:" << curr_phase << std::endl;
+	// phaseを進めていき，最後までいったのを検出したら，改めてsyncする
 	if (curr_phase < prev_phase)
 	{
 		const auto& sim_char = GetCharacter();
@@ -312,6 +336,7 @@ void cSceneImitate::UpdateKinChar(double timestep)
 
 void cSceneImitate::ResetCharacters()
 {
+	// std::cout << __func__ << std::endl;
 	cRLSceneSimChar::ResetCharacters();
 
 	ResetKinChar();
@@ -323,6 +348,7 @@ void cSceneImitate::ResetCharacters()
 
 void cSceneImitate::ResetKinChar()
 {
+	// std::cout << __func__ << std::endl;
 	double rand_time = CalcRandKinResetTime();
 
 	const cSimCharacter::tParams& char_params = mCharParams[0];
@@ -343,10 +369,11 @@ void cSceneImitate::ResetKinChar()
 
 void cSceneImitate::SyncCharacters()
 {
+	// std::cout << __func__ << std::endl;
 	const auto& kin_char = GetKinChar();
 	const Eigen::VectorXd& pose = kin_char->GetPose();
 	const Eigen::VectorXd& vel = kin_char->GetVel();
-	
+
 	const auto& sim_char = GetCharacter();
 	sim_char->SetPose(pose);
 	sim_char->SetVel(vel);
@@ -362,22 +389,26 @@ void cSceneImitate::SyncCharacters()
 
 bool cSceneImitate::EnableSyncChar() const
 {
+	// std::cout << __func__ << std::endl;
 	const auto& kin_char = GetKinChar();
 	return kin_char->HasMotion();
 }
 
 void cSceneImitate::InitCharacterPosFixed(const std::shared_ptr<cSimCharacter>& out_char)
 {
+	// std::cout << __func__ << std::endl;
 	// nothing to see here
 }
 
 void cSceneImitate::InitJointWeights()
 {
+	// std::cout << __func__ << std::endl;
 	CalcJointWeights(GetCharacter(), mJointWeights);
 }
 
 void cSceneImitate::ResolveCharGroundIntersect()
 {
+	// std::cout << __func__ << std::endl;
 	cRLSceneSimChar::ResolveCharGroundIntersect();
 
 	if (EnableSyncChar())
@@ -388,11 +419,13 @@ void cSceneImitate::ResolveCharGroundIntersect()
 
 void cSceneImitate::ResolveCharGroundIntersect(const std::shared_ptr<cSimCharacter>& out_char) const
 {
+	// std::cout << __func__ << std::endl;
 	cRLSceneSimChar::ResolveCharGroundIntersect(out_char);
 }
 
 void cSceneImitate::SyncKinCharRoot()
 {
+	// std::cout << __func__ << std::endl;
 	const auto& sim_char = GetCharacter();
 	tVector sim_root_pos = sim_char->GetRootPos();
 	double sim_heading = sim_char->CalcHeading();
@@ -412,6 +445,7 @@ void cSceneImitate::SyncKinCharRoot()
 
 void cSceneImitate::SyncKinCharNewCycle(const cSimCharacter& sim_char, cKinCharacter& out_kin_char) const
 {
+	// std::cout << __func__ << std::endl;
 	if (mSyncCharRootRot)
 	{
 		double sim_heading = sim_char.CalcHeading();
@@ -438,12 +472,14 @@ void cSceneImitate::SyncKinCharNewCycle(const cSimCharacter& sim_char, cKinChara
 
 double cSceneImitate::GetKinTime() const
 {
+	// std::cout << __func__ << std::endl;
 	const auto& kin_char = GetKinChar();
 	return kin_char->GetTime();
 }
 
 bool cSceneImitate::CheckKinNewCycle(double timestep) const
 {
+	// std::cout << __func__ << std::endl;
 	bool new_cycle = false;
 	const auto& kin_char = GetKinChar();
 	if (kin_char->GetMotion().EnableLoop())
@@ -464,11 +500,13 @@ bool cSceneImitate::HasFallen(const cSimCharacter& sim_char) const
 		fallen |= CheckRootRotFail(sim_char);
 	}
 
+	// std::cout << __func__ << ":" << fallen << std::endl;
 	return fallen;
 }
 
 bool cSceneImitate::CheckRootRotFail(const cSimCharacter& sim_char) const
 {
+	// std::cout << __func__ << std::endl;
 	const auto& kin_char = GetKinChar();
 	bool fail = CheckRootRotFail(sim_char, *kin_char);
 	return fail;
@@ -476,6 +514,7 @@ bool cSceneImitate::CheckRootRotFail(const cSimCharacter& sim_char) const
 
 bool cSceneImitate::CheckRootRotFail(const cSimCharacter& sim_char, const cKinCharacter& kin_char) const
 {
+	// std::cout << __func__ << std::endl;
 	const double threshold = 0.5 * M_PI;
 
 	tQuaternion sim_rot = sim_char.GetRootRotation();
@@ -486,6 +525,7 @@ bool cSceneImitate::CheckRootRotFail(const cSimCharacter& sim_char, const cKinCh
 
 double cSceneImitate::CalcRandKinResetTime()
 {
+	// std::cout << __func__ << std::endl;
 	const auto& kin_char = GetKinChar();
 	double dur = kin_char->GetMotionDuration();
 	double rand_time = cMathUtil::RandDouble(0, dur);
