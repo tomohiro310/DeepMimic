@@ -8,11 +8,19 @@
 double cSceneImitate::CalcRewardImitate(const cSimCharacter& sim_char, const cKinCharacter& kin_char) const
 {
 	// std::cout << __func__ << std::endl;
-	double pose_w = 0.5;
-	double vel_w = 0.05;
-	double end_eff_w = 0.15;
-	double root_w = 0.2;
-	double com_w = 0.1;
+	// original
+	// double pose_w = 0.5;
+	// double vel_w = 0.05;
+	// double end_eff_w = 0.15;
+	// double root_w = 0.2;
+	// double com_w = 0.1;
+
+	// root and com
+	double pose_w = 0.0;
+	double vel_w = 0.0;
+	double end_eff_w = 0.0;
+	double root_w = 0.67;
+	double com_w = 0.33;
 
 	double total_w = pose_w + vel_w + end_eff_w + root_w + com_w;
 	pose_w /= total_w;
