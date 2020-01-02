@@ -450,6 +450,7 @@ void cDrawSceneSimChar::DrawMisc() const
 	{
 		DrawTrace();
 	}
+	DrawHeading();
 	DrawPerturbs();
 }
 
