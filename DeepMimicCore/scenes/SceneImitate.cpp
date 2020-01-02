@@ -8,6 +8,7 @@
 double cSceneImitate::CalcRewardImitate(const cSimCharacter& sim_char, const cKinCharacter& kin_char) const
 {
 	// std::cout << __func__ << std::endl;
+	const double vel_coeff = 1.5;
 	// original
 	double pose_w = 0.5;
 	double vel_w = 0.05;
@@ -136,7 +137,7 @@ double cSceneImitate::CalcRewardImitate(const cSimCharacter& sim_char, const cKi
 			+ 0.1 * root_rot_err
 			+ 0.01 * root_vel_err
 			+ 0.001 * root_ang_vel_err;
-	com_err = 0.1 * (com_vel1_world - com_vel0_world).squaredNorm();
+	com_err = 0.1 * (com_vel1_world * vel_coeff - com_vel0_world).squaredNorm();
 
 	double pose_reward = exp(-err_scale * pose_scale * pose_err);
 	double vel_reward = exp(-err_scale * vel_scale * vel_err);
