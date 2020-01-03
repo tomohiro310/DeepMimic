@@ -21,7 +21,7 @@ const std::string gOutputCharFile = "output/char_state.txt";
 
 cDrawSceneSimChar::cDrawSceneSimChar()
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	mEnableTrace = false;
 	mTracerBufferSize = 2000;
 	mTracerSamplePeriod = 1 / 60.0;
@@ -34,7 +34,7 @@ cDrawSceneSimChar::~cDrawSceneSimChar()
 
 void cDrawSceneSimChar::Init()
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	BuildScene(mScene);
 	SetupScene(mScene);
 	
@@ -46,7 +46,7 @@ void cDrawSceneSimChar::Init()
 
 void cDrawSceneSimChar::Clear()
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	cDrawScene::Clear();
 	mScene->Clear();
 	mTracer.Clear();
@@ -55,7 +55,7 @@ void cDrawSceneSimChar::Clear()
 
 void cDrawSceneSimChar::Update(double time_elapsed)
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	cDrawScene::Update(time_elapsed);
 
 	UpdateScene(time_elapsed);
@@ -70,13 +70,13 @@ void cDrawSceneSimChar::Update(double time_elapsed)
 
 const std::shared_ptr<cSceneSimChar>& cDrawSceneSimChar::GetScene() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	return mScene;
 }
 
 void cDrawSceneSimChar::MouseClick(int button, int state, double x, double y)
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	const double ray_max_dist = 1000;
 	cDrawScene::MouseClick(button, state, x, y);
 
@@ -103,7 +103,7 @@ void cDrawSceneSimChar::MouseClick(int button, int state, double x, double y)
 
 void cDrawSceneSimChar::MouseMove(double x, double y)
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	cDrawScene::MouseMove(x, y);
 
 	if (ObjectSelected())
@@ -114,7 +114,7 @@ void cDrawSceneSimChar::MouseMove(double x, double y)
 
 void cDrawSceneSimChar::Keyboard(unsigned char key, double device_x, double device_y)
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	cDrawScene::Keyboard(key, device_x, device_y);
 
 	switch (key)
@@ -138,51 +138,51 @@ void cDrawSceneSimChar::Keyboard(unsigned char key, double device_x, double devi
 
 double cDrawSceneSimChar::GetTime() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	return mScene->GetTime();
 }
 
 bool cDrawSceneSimChar::IsEpisodeEnd() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	return mScene->IsEpisodeEnd();
 }
 
 bool cDrawSceneSimChar::CheckValidEpisode() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	return mScene->CheckValidEpisode();
 }
 
 std::string cDrawSceneSimChar::GetName() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	return mScene->GetName();
 }
 
 void cDrawSceneSimChar::BuildScene(std::shared_ptr<cSceneSimChar>& out_scene) const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	out_scene = std::shared_ptr<cSceneSimChar>(new cSceneSimChar());
 }
 
 void cDrawSceneSimChar::SetupScene(std::shared_ptr<cSceneSimChar>& out_scene)
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	out_scene->ParseArgs(mArgParser);
 	out_scene->Init();
 }
 
 void cDrawSceneSimChar::UpdateScene(double time_elapsed)
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	ApplyUIForce(time_elapsed);
 	mScene->Update(time_elapsed);
 }
 
 void cDrawSceneSimChar::ResetScene()
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	cDrawScene::ResetScene();
 	mScene->Reset();
 	mTracer.Reset();
@@ -191,14 +191,14 @@ void cDrawSceneSimChar::ResetScene()
 
 tVector cDrawSceneSimChar::GetCamTrackPos() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	const auto& character = mScene->GetCharacter();
 	return character->CalcCOM();
 }
 
 tVector cDrawSceneSimChar::GetCamStillPos() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	const auto& character = mScene->GetCharacter();
 	tVector char_pos = character->CalcCOM();
 
@@ -247,20 +247,20 @@ tVector cDrawSceneSimChar::GetCamStillPos() const
 
 tVector cDrawSceneSimChar::GetDefaultCamFocus() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	return gCamFocus0;
 }
 
 void cDrawSceneSimChar::ResetParams()
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	cDrawScene::ResetParams();
 	ResetUI();
 }
 
 void cDrawSceneSimChar::ToggleTrace()
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	mTracer.Reset();
 	mEnableTrace = !mEnableTrace;
 	if (mEnableTrace)
@@ -275,7 +275,7 @@ void cDrawSceneSimChar::ToggleTrace()
 
 void cDrawSceneSimChar::InitTracer()
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	mTraceHandles.clear();
 	mTracer.Init(mTracerSamplePeriod);
 	AddTraces();
@@ -283,7 +283,7 @@ void cDrawSceneSimChar::InitTracer()
 
 void cDrawSceneSimChar::AddTraces()
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	tVectorArr tracer_cols;
 	tracer_cols.push_back(tVector(0, 0, 1, 0.5));
 	tracer_cols.push_back(tVector(1, 0, 0, 0.5));
@@ -301,7 +301,7 @@ void cDrawSceneSimChar::AddTraces()
 void cDrawSceneSimChar::AddCharTrace(const std::shared_ptr<cSimCharacter>& character,
 									const tVectorArr& cols)
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	cObjTracer::tParams com_params;
 	com_params.mObj = character;
 	com_params.mColors = cols;
@@ -333,38 +333,38 @@ void cDrawSceneSimChar::AddCharTrace(const std::shared_ptr<cSimCharacter>& chara
 
 void cDrawSceneSimChar::UpdateTracer(double time_elapsed)
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	mTracer.Update(time_elapsed);
 }
 
 void cDrawSceneSimChar::SpawnProjectile()
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	mScene->SpawnProjectile();
 }
 
 void cDrawSceneSimChar::SpawnBigProjectile()
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	mScene->SpawnBigProjectile();
 }
 
 void cDrawSceneSimChar::OutputCharState(const std::string& out_file) const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	mScene->OutputCharState(out_file);
 }
 
 std::string cDrawSceneSimChar::GetOutputCharFile() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	return gOutputCharFile;
 }
 
 
 void cDrawSceneSimChar::ResetUI()
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	mClickScreenPos.setZero();
 	mDragScreenPos.setZero();
 	mSelectObjLocalPos.setZero();
@@ -373,19 +373,19 @@ void cDrawSceneSimChar::ResetUI()
 
 void cDrawSceneSimChar::RayTest(const tVector& start, const tVector& end, cWorld::tRayTestResult& out_result)
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	return GetScene()->RayTest(start, end, out_result);
 }
 
 bool cDrawSceneSimChar::ObjectSelected() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	return mSelectedObj != nullptr;
 }
 
 void cDrawSceneSimChar::HandleRayTest(const cWorld::tRayTestResult& result)
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	if (result.mObj != nullptr)
 	{
 		cSimObj::eType obj_type = result.mObj->GetType();
@@ -402,7 +402,7 @@ void cDrawSceneSimChar::HandleRayTest(const cWorld::tRayTestResult& result)
 
 void cDrawSceneSimChar::ApplyUIForce(double time_step)
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	if (ObjectSelected())
 	{
 		const double force_scale = 1 / cDrawPerturb::gForceScale;
@@ -422,7 +422,7 @@ void cDrawSceneSimChar::ApplyUIForce(double time_step)
 
 void cDrawSceneSimChar::DrawObjs() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	int num_objs = mScene->GetNumObjs();
 	for (int i = 0; i < num_objs; ++i)
 	{
@@ -445,7 +445,7 @@ void cDrawSceneSimChar::DrawObjs() const
 
 void cDrawSceneSimChar::DrawMisc() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	if (mEnableTrace)
 	{
 		DrawTrace();
@@ -456,7 +456,7 @@ void cDrawSceneSimChar::DrawMisc() const
 
 void cDrawSceneSimChar::DrawCoM() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	const tVector col = tVector(0, 0.8, 0, 0.5);
 	const double marker_size = 0.1;
 	const double vel_scale = 0.1;
@@ -470,7 +470,7 @@ void cDrawSceneSimChar::DrawCoM() const
 
 void cDrawSceneSimChar::DrawTorque() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	for (int i = 0; i < mScene->GetNumChars(); ++i)
 	{
 		const auto& character = mScene->GetCharacter(i);
@@ -480,7 +480,7 @@ void cDrawSceneSimChar::DrawTorque() const
 
 void cDrawSceneSimChar::DrawBodyVel() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	const double lin_vel_scale = 0.1;
 	const double ang_vel_scale = 1 / (2 * M_PI);
 	for (int i = 0; i < mScene->GetNumChars(); ++i)
@@ -492,7 +492,7 @@ void cDrawSceneSimChar::DrawBodyVel() const
 
 void cDrawSceneSimChar::DrawHeading() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	for (int i = 0; i < mScene->GetNumChars(); ++i)
 	{
 		const auto& character = mScene->GetCharacter(i);
@@ -504,7 +504,7 @@ void cDrawSceneSimChar::DrawHeading() const
 
 void cDrawSceneSimChar::DrawTrace() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	cDrawUtil::PushMatrixView();
 	cDrawUtil::Translate(GetVisOffset());
 	mTracer.Draw();
@@ -514,14 +514,14 @@ void cDrawSceneSimChar::DrawTrace() const
 
 void cDrawSceneSimChar::DrawPerturbs() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	const auto& world = mScene->GetWorld();
 	cDrawWorld::DrawPerturbs(*world.get());
 }
 
 void cDrawSceneSimChar::DrawGround() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	const auto& ground = mScene->GetGround();
 
 	tVector focus = mCamera.GetFocus();
@@ -535,7 +535,7 @@ void cDrawSceneSimChar::DrawGround() const
 
 void cDrawSceneSimChar::DrawCharacters() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	int num_chars = mScene->GetNumChars();
 	for (int i = 0; i < num_chars; ++i)
 	{
@@ -546,7 +546,7 @@ void cDrawSceneSimChar::DrawCharacters() const
 
 void cDrawSceneSimChar::DrawCharacter(const std::shared_ptr<cSimCharacter>& character) const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	const tVector fill_tint = tVector(1, 1, 1, 1);
 	bool enable_draw_shape = true;
 	cDrawSimCharacter::Draw(*(character.get()), fill_tint, GetLineColor(), enable_draw_shape);
@@ -554,7 +554,7 @@ void cDrawSceneSimChar::DrawCharacter(const std::shared_ptr<cSimCharacter>& char
 
 void cDrawSceneSimChar::UpdateGroundDrawMesh()
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	const auto& ground = mScene->GetGround();
 	size_t update_count = ground->GetUpdateCount();
 	if (update_count != mPrevGroundUpdateCount)
@@ -567,7 +567,7 @@ void cDrawSceneSimChar::UpdateGroundDrawMesh()
 
 void cDrawSceneSimChar::BuildGroundDrawMesh()
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	mGroundDrawMesh = std::unique_ptr<cDrawMesh>(new cDrawMesh());
 	mGroundDrawMesh->Init(1);
 
@@ -578,13 +578,13 @@ void cDrawSceneSimChar::BuildGroundDrawMesh()
 
 void cDrawSceneSimChar::DrawInfo() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	DrawPoliInfo();
 }
 
 void cDrawSceneSimChar::DrawPoliInfo() const
 {
-	std::cout << __func__ << std::endl;
+	// std::cout << __func__ << std::endl;
 	const auto& character = mScene->GetCharacter();
 	const cDeepMimicCharController* trl_ctrl = dynamic_cast<cDeepMimicCharController*>(character->GetController().get());
 	if (trl_ctrl != nullptr)
