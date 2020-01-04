@@ -43,7 +43,7 @@ double cSceneImitate::CalcRewardImitate(const cSimCharacter& sim_char, const cKi
 	double end_eff_w = 0.15;
 	double root_w = 0.2;
 	double com_w = 0.0;
-	double com_vel_w = 1.0;
+	double com_vel_w = 0.8;
 
 	double total_w = pose_w + vel_w + end_eff_w + root_w + com_w + com_vel_w;
 	pose_w /= total_w;
@@ -415,8 +415,19 @@ bool cSceneImitate::BuildKinCharactersForMultiClips(int id, std::shared_ptr<cKin
 
 void cSceneImitate::UpdateCharacters(double timestep)
 {
-	// std::cout << __func__ << ":" << mUpdateCount << std::endl;
-	UpdateKinChar(timestep);
+	// 目標歩行速度に応じて，Refernceのモーションを早回しにする
+	const auto& sim_char = GetCharacter();
+	// human_walkの速度が1.0m/s
+	double time_step_coeff = sim_char->GetCOMVelocity() / 1.0;
+	// 最初のループでCOMVelocityが0になっていることの暫定対策
+	if (time_step_coeff < 0.5)
+	{
+		time_step_coeff = 1.0;
+	}
+	double modified_time_step = timestep * time_step_coeff;
+	UpdateKinChar(modified_time_step);
+
+	// std::cout << __func__ << ":" << mUpdateCount << ", " << timestep << ", " << modified_time_step << std::endl;
 
 	// Multi clipsのphaseを揃える
 	SyncKinCharsForMultiClips();
