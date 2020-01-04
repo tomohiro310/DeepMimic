@@ -79,7 +79,10 @@ public:
 	virtual const Eigen::MatrixXd& GetDrawShapeDefs() const;
 	virtual const std::shared_ptr<cDrawMesh>& GetMesh(int i) const;
 	virtual int GetNumMeshes() const;
-	
+
+	virtual double GetCOMVelocity() const;
+	virtual void SetCOMVelocity(const double velocity);
+
 protected:
 	int mID;
 	Eigen::MatrixXd mJointMat;
@@ -90,6 +93,8 @@ protected:
 
 	Eigen::MatrixXd mDrawShapeDefs;
 	std::vector<std::shared_ptr<cDrawMesh>> mMeshes;
+
+	double mCOMVelocity;
 
 	cCharacter();
 

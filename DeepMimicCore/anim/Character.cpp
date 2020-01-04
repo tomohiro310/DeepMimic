@@ -88,6 +88,8 @@ void cCharacter::Clear()
 
 	mDrawShapeDefs.resize(0, 0);
 	mMeshes.clear();
+
+	mCOMVelocity = 0.0;
 }
 
 void cCharacter::Update(double time_step)
@@ -414,6 +416,16 @@ const std::shared_ptr<cDrawMesh>& cCharacter::GetMesh(int i) const
 int cCharacter::GetNumMeshes() const
 {
 	return static_cast<int>(mMeshes.size());
+}
+
+void cCharacter::SetCOMVelocity(const double velocity)
+{
+	mCOMVelocity = velocity;
+}
+
+double cCharacter::GetCOMVelocity() const
+{
+	return mCOMVelocity;
 }
 
 void cCharacter::ResetParams()

@@ -8,13 +8,13 @@
 double cSceneImitate::CalcRewardImitate(const cSimCharacter& sim_char, const cKinCharacter& kin_char) const
 {
 	// std::cout << __func__ << std::endl;
-	const double vel_coeff = 2.0;
 	// original
-	double pose_w = 0.5;
-	double vel_w = 0.05;
-	double end_eff_w = 0.15;
-	double root_w = 0.2;
-	double com_w = 0.5;
+	// double pose_w = 0.5;
+	// double vel_w = 0.05;
+	// double end_eff_w = 0.15;
+	// double root_w = 0.2;
+	// double com_w = 0.1;
+	// double com_vel_w = 0.0;
 
 	// root and com
 	// double pose_w = 0.0;
@@ -37,12 +37,21 @@ double cSceneImitate::CalcRewardImitate(const cSimCharacter& sim_char, const cKi
 	// double root_w = 0.0;
 	// double com_w = 0.0;
 
-	double total_w = pose_w + vel_w + end_eff_w + root_w + com_w;
+	// original
+	double pose_w = 0.5;
+	double vel_w = 0.05;
+	double end_eff_w = 0.15;
+	double root_w = 0.2;
+	double com_w = 0.0;
+	double com_vel_w = 1.0;
+
+	double total_w = pose_w + vel_w + end_eff_w + root_w + com_w + com_vel_w;
 	pose_w /= total_w;
 	vel_w /= total_w;
 	end_eff_w /= total_w;
 	root_w /= total_w;
 	com_w /= total_w;
+	com_vel_w /= total_w;
 
 	int num_joints = sim_char.GetNumJoints();
 	assert(num_joints == mJointWeights.size());
@@ -52,6 +61,7 @@ double cSceneImitate::CalcRewardImitate(const cSimCharacter& sim_char, const cKi
 	const double end_eff_scale = 10;
 	const double root_scale = 5;
 	const double com_scale = 10;
+	const double com_vel_scale = 10;
 	const double err_scale = 1;
 
 	const auto& joint_mat = sim_char.GetJointMat();
@@ -86,6 +96,7 @@ double cSceneImitate::CalcRewardImitate(const cSimCharacter& sim_char, const cKi
 	double end_eff_err = 0;
 	double root_err = 0;
 	double com_err = 0;
+	double com_vel_err = 0;
 	double heading_err = 0;
 
 	double root_rot_w = mJointWeights[root_id];
@@ -137,16 +148,21 @@ double cSceneImitate::CalcRewardImitate(const cSimCharacter& sim_char, const cKi
 			+ 0.1 * root_rot_err
 			+ 0.01 * root_vel_err
 			+ 0.001 * root_ang_vel_err;
-	com_err = 0.1 * (com_vel1_world * vel_coeff - com_vel0_world).squaredNorm();
+	com_err = 0.1 * (com_vel1_world - com_vel0_world).squaredNorm();
+
+	double com_vel_command = sim_char.GetCOMVelocity();
+	// std::cout << "COM_Velocity:" << com_vel_command << std::endl;
+	com_vel_err = 0.1 * (com_vel_command - com_vel0_world[0]);
 
 	double pose_reward = exp(-err_scale * pose_scale * pose_err);
 	double vel_reward = exp(-err_scale * vel_scale * vel_err);
 	double end_eff_reward = exp(-err_scale * end_eff_scale * end_eff_err);
 	double root_reward = exp(-err_scale * root_scale * root_err);
 	double com_reward = exp(-err_scale * com_scale * com_err);
+	double com_vel_reward = exp(-err_scale * com_vel_scale * com_vel_err);
 
 	reward = pose_w * pose_reward + vel_w * vel_reward + end_eff_w * end_eff_reward
-		+ root_w * root_reward + com_w * com_reward;
+		+ root_w * root_reward + com_w * com_reward + com_vel_w * com_vel_reward;
 
 	return reward;
 }
@@ -155,6 +171,7 @@ cSceneImitate::cSceneImitate()
 {
 	// std::cout << __func__ << std::endl;
 	mEnableRandRotReset = false;
+	mEnableRandVelocityReset = true;
 	mSyncCharRootPos = true;
 	mSyncCharRootRot = false;
 	mMotionFile = "";
@@ -176,6 +193,7 @@ void cSceneImitate::ParseArgs(const std::shared_ptr<cArgParser>& parser)
 	parser->ParseString("motion_file", mMotionFile);
 	parser->ParseStrings("motion_files_for_multi_clips", mMotionFilesForMultiClips);
 	parser->ParseBool("enable_rand_rot_reset", mEnableRandRotReset);
+	parser->ParseBool("enable_rand_velocity_reset", mEnableRandVelocityReset);
 	parser->ParseBool("sync_char_root_pos", mSyncCharRootPos);
 	parser->ParseBool("sync_char_root_rot", mSyncCharRootRot);
 	parser->ParseBool("enable_root_rot_fail", mEnableRootRotFail);
@@ -197,7 +215,6 @@ void cSceneImitate::Init()
 
 double cSceneImitate::CalcReward(int agent_id) const
 {
-	// std::cout << __func__ << std::endl;
 	const cSimCharacter* sim_char = GetAgentChar(agent_id);
 	bool fallen = HasFallen(*sim_char);
 
@@ -215,6 +232,7 @@ double cSceneImitate::CalcReward(int agent_id) const
 		max_id = std::distance(rs.begin(), maxIt);
 		r = rs.at(max_id);
 	}
+	// std::cout << __func__ << ", " << max_id << std::endl;
 	return r;
 }
 
@@ -234,6 +252,19 @@ bool cSceneImitate::EnabledRandRotReset() const
 {
 	// std::cout << __func__ << std::endl;
 	bool enable = mEnableRandRotReset;
+	return enable;
+}
+
+void cSceneImitate::EnableRandVelocityReset(bool enable)
+{
+	// std::cout << __func__ << std::endl;
+	mEnableRandVelocityReset = enable;
+}
+
+bool cSceneImitate::EnabledRandVelocityReset() const
+{
+	// std::cout << __func__ << std::endl;
+	bool enable = mEnableRandVelocityReset;
 	return enable;
 }
 
@@ -457,6 +488,13 @@ void cSceneImitate::ResetKinChar()
 	{
 		double rand_theta = mRand.RandDouble(-M_PI, M_PI);
 		kin_char->RotateOrigin(cMathUtil::EulerToQuaternion(tVector(0, rand_theta, 0, 0)));
+	}
+
+	if (EnabledRandVelocityReset())
+	{
+		double rand_velocity = mRand.RandDouble(0.8, 3.6);
+		const auto& sim_char = GetCharacter();
+		sim_char->SetCOMVelocity(rand_velocity);
 	}
 }
 

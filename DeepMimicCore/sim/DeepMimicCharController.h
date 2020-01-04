@@ -27,6 +27,7 @@ public:
 
 	virtual eActionSpace GetActionSpace() const;
 	virtual int GetStateSize() const;
+	virtual int GetGoalSize() const;
 
 	virtual double GetRewardMin() const;
 	virtual double GetRewardMax() const;
@@ -51,6 +52,7 @@ protected:
 	bool mNeedNewAction;
 	Eigen::VectorXd mAction;
 	Eigen::VectorXd mTau;
+	Eigen::VectorXd mGoal;
 
 	double mViewDistMin;
 	double mViewDistMax;
@@ -70,6 +72,7 @@ protected:
 	virtual void InitResources();
 	virtual void InitAction();
 	virtual void InitTau();
+	virtual void InitGoal();
 	
 	virtual int GetPosDim() const;
 
@@ -80,6 +83,7 @@ protected:
 
 	virtual void BuildStatePose(Eigen::VectorXd& out_pose) const;
 	virtual void BuildStateVel(Eigen::VectorXd& out_vel) const;
+	virtual void BuildGoal(Eigen::VectorXd& out_com_vel) const;
 	virtual int GetStatePoseOffset() const;
 	virtual int GetStateVelOffset() const;
 	virtual int GetStatePoseSize() const;

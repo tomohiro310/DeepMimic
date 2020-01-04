@@ -177,7 +177,11 @@ void cDeepMimicCharController::RecordState(Eigen::VectorXd& out_state)
 void cDeepMimicCharController::RecordGoal(Eigen::VectorXd& out_goal) const
 {
 	int goal_size = GetGoalSize();
+	// fill with nans to make sure we don't forget to set anything
 	out_goal = std::numeric_limits<double>::quiet_NaN() * Eigen::VectorXd::Ones(goal_size);
+	Eigen::VectorXd com_vel_command;
+	BuildGoal(com_vel_command);
+	out_goal = com_vel_command;
 }
 
 eActionSpace cDeepMimicCharController::GetActionSpace() const
@@ -196,6 +200,12 @@ int cDeepMimicCharController::GetStateSize() const
 	state_size += GetStatePoseSize();
 	state_size += GetStateVelSize();
 	return state_size;
+}
+
+int cDeepMimicCharController::GetGoalSize() const
+{
+	const int goal_size = 4;
+	return goal_size;
 }
 
 double cDeepMimicCharController::GetRewardMin() const
@@ -233,6 +243,7 @@ void cDeepMimicCharController::InitResources()
 {
 	InitAction();
 	InitTau();
+	InitGoal();
 }
 
 void cDeepMimicCharController::InitAction()
@@ -243,6 +254,11 @@ void cDeepMimicCharController::InitAction()
 void cDeepMimicCharController::InitTau()
 {
 	mTau = Eigen::VectorXd::Zero(mChar->GetNumDof());
+}
+
+void cDeepMimicCharController::InitGoal()
+{
+	mGoal = Eigen::VectorXd::Zero(GetGoalSize());
 }
 
 int cDeepMimicCharController::GetPosDim() const
@@ -321,6 +337,12 @@ void cDeepMimicCharController::BuildStateVel(Eigen::VectorXd& out_vel) const
 		out_vel.segment(idx, mPosDim) = curr_vel.segment(0, mPosDim);
 		idx += mPosDim;
 	}
+}
+
+void cDeepMimicCharController::BuildGoal(Eigen::VectorXd& out_com_vel) const
+{
+	out_com_vel.resize(GetGoalSize());
+	out_com_vel << 1.0, 0.0, 0.0, mChar->GetCOMVelocity();
 }
 
 int cDeepMimicCharController::GetStatePoseOffset() const

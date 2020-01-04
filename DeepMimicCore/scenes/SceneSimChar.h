@@ -115,6 +115,8 @@ protected:
 	cIndexBuffer<tObjEntry, Eigen::aligned_allocator<tObjEntry>> mObjs;
 	cIndexBuffer<tJointEntry> mJoints;
 
+	double mRandVelocity;
+
 	virtual bool ParseCharTypes(const std::shared_ptr<cArgParser>& parser, std::vector<cSimCharBuilder::eCharType>& out_types) const;
 	virtual bool ParseCharParams(const std::shared_ptr<cArgParser>& parser, std::vector<cSimCharacter::tParams>& out_params) const;
 	virtual bool ParseCharCtrlParams(const std::shared_ptr<cArgParser>& parser, std::vector<cCtrlBuilder::tCtrlParams>& out_params) const;

@@ -17,6 +17,8 @@ public:
 	virtual const std::shared_ptr<cKinCharacter>& GetKinChar() const;
 	virtual void EnableRandRotReset(bool enable);
 	virtual bool EnabledRandRotReset() const;
+	virtual void EnableRandVelocityReset(bool enable);
+	virtual bool EnabledRandVelocityReset() const;
 
 	virtual double CalcReward(int agent_id) const;
 	virtual eTerminate CheckTerminate(int agent_id) const;
@@ -34,6 +36,7 @@ protected:
 
 	Eigen::VectorXd mJointWeights;
 	bool mEnableRandRotReset;
+	bool mEnableRandVelocityReset;
 	bool mSyncCharRootPos;
 	bool mSyncCharRootRot;
 	bool mEnableRootRotFail;
