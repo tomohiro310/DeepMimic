@@ -503,7 +503,8 @@ void cSceneImitate::ResetKinChar()
 
 	if (EnabledRandVelocityReset())
 	{
-		double rand_velocity = mRand.RandDouble(0.8, 3.6);
+                //double rand_velocity = mRand.RandDouble(0.8, 3.6);
+                double rand_velocity = 1.0;
 		const auto& sim_char = GetCharacter();
 		sim_char->SetCOMVelocity(rand_velocity);
 	}
