@@ -43,7 +43,7 @@ double cSceneImitate::CalcRewardImitate(const cSimCharacter& sim_char, const cKi
 	double end_eff_w = 0.15;
 	double root_w = 0.2;
 	double com_w = 0.0;
-	double com_vel_w = 0.8;
+	double com_vel_w = 0.1;
 
 	double total_w = pose_w + vel_w + end_eff_w + root_w + com_w + com_vel_w;
 	pose_w /= total_w;
@@ -151,8 +151,8 @@ double cSceneImitate::CalcRewardImitate(const cSimCharacter& sim_char, const cKi
 	com_err = 0.1 * (com_vel1_world - com_vel0_world).squaredNorm();
 
 	double com_vel_command = sim_char.GetCOMVelocity();
-	// std::cout << "COM_Velocity:" << com_vel_command << std::endl;
-	com_vel_err = 0.1 * (com_vel_command - com_vel0_world[0]);
+	// std::cout << "COM_Velocity:" << com_vel_command << ", " << com_vel0_world.transpose() << std::endl;
+	com_vel_err = 0.1 * abs(com_vel_command - com_vel0_world[0]);
 
 	double pose_reward = exp(-err_scale * pose_scale * pose_err);
 	double vel_reward = exp(-err_scale * vel_scale * vel_err);
