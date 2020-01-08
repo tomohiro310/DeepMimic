@@ -204,8 +204,12 @@ void cSceneImitate::Init()
 {
 	// std::cout << __func__ << std::endl;
 	mKinChar.reset();
-	mKinCharRun.reset();
-	mKinCharWalk.reset();
+	// mKinCharRun.reset();
+	// mKinCharWalk.reset();
+        // dog
+        mKinCharCanter.reset();
+        mKinCharTrot.reset();
+        mKinCharPace.reset();
 	BuildKinChar();
 
 	// For Multi Clips
@@ -350,7 +354,8 @@ void cSceneImitate::BuildKinChar()
 {
 	// std::cout << __func__ << std::endl;
 	bool succ = BuildKinCharacter(0, mKinChar);
-        mKinCharWalk = mKinChar;
+        // mKinCharWalk = mKinChar;
+        mKinCharPace = mKinChar;
 	if (!succ)
 	{
 		printf("Failed to build kin character\n");
@@ -394,7 +399,8 @@ void cSceneImitate::BuildKinCharsForMultiClips()
 			assert(false);
 		}
 	}
-        mKinCharRun = mKinCharsForMultiClips.at(0);
+        mKinCharTrot = mKinCharsForMultiClips.at(0);
+        mKinCharCanter = mKinCharsForMultiClips.at(1);
 }
 
 bool cSceneImitate::BuildKinCharactersForMultiClips(int id, std::shared_ptr<cKinCharacter>& out_char) const
@@ -427,13 +433,25 @@ void cSceneImitate::UpdateCharacters(double timestep)
 	// human_runの速度がm/s
 	// double time_step_coeff = sim_char->GetCOMVelocity() / 3.48;
         double time_step_coeff = 0.0;
-        if (sim_char->GetCOMVelocity() > 2.0)
+        // if (sim_char->GetCOMVelocity() > 2.0)
+        // {
+        //         time_step_coeff = sim_char->GetCOMVelocity() / 3.48;
+        // }
+        // else
+        // {
+        //         time_step_coeff = sim_char->GetCOMVelocity() / 1.00;
+        // }
+        if (sim_char->GetCOMVelocity() > 3.6)
         {
-                time_step_coeff = sim_char->GetCOMVelocity() / 3.48;
+                time_step_coeff = sim_char->GetCOMVelocity() / 5.08;
+        }
+        else if (sim_char->GetCOMVelocity() < 1.8)
+        {
+                time_step_coeff = sim_char->GetCOMVelocity() / 1.33;
         }
         else
         {
-                time_step_coeff = sim_char->GetCOMVelocity() / 1.00;
+                time_step_coeff = sim_char->GetCOMVelocity() / 2.23;
         }
 
 	// 最初のループでCOMVelocityが0になっていることの暫定対策
@@ -508,7 +526,10 @@ void cSceneImitate::ResetKinChar()
         double rand_velocity = 0.0;
 	if (EnabledRandVelocityReset())
 	{
-                rand_velocity = mRand.RandDouble(0.8, 3.6);
+                // human
+                // rand_velocity = mRand.RandDouble(0.8, 3.6);
+                // dog
+                rand_velocity = mRand.RandDouble(1.1, 5.3);
                 //double rand_velocity = mRand.RandDouble(0.8, 1.2);
                 //double rand_velocity = mRand.RandDouble(2.5, 3.8);
                 //double rand_velocity = 1.0;
@@ -516,13 +537,25 @@ void cSceneImitate::ResetKinChar()
 		sim_char->SetCOMVelocity(rand_velocity);
 	}
 
-        if (rand_velocity > 2.0)
+        // if (rand_velocity > 2.0)
+        // {
+        //         mKinChar = mKinCharRun;
+        // }
+        // else
+        // {
+        //         mKinChar = mKinCharWalk;
+        // }
+        if (rand_velocity > 3.6)
         {
-                mKinChar = mKinCharRun;
+                mKinChar = mKinCharCanter;
+        }
+        else if (rand_velocity < 1.8)
+        {
+                mKinChar = mKinCharPace;
         }
         else
         {
-                mKinChar = mKinCharWalk;
+                mKinChar = mKinCharTrot;
         }
 
 	double rand_time = CalcRandKinResetTime();
