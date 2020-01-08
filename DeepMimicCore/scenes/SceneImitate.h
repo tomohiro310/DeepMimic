@@ -30,6 +30,8 @@ protected:
 	std::string mMotionFile;
 	std::vector<std::string> mMotionFilesForMultiClips;
 	std::shared_ptr<cKinCharacter> mKinChar;
+	std::shared_ptr<cKinCharacter> mKinCharRun;
+	std::shared_ptr<cKinCharacter> mKinCharWalk;
 
 	// for multi clip
 	std::vector<std::shared_ptr<cKinCharacter>> mKinCharsForMultiClips;

@@ -204,6 +204,8 @@ void cSceneImitate::Init()
 {
 	// std::cout << __func__ << std::endl;
 	mKinChar.reset();
+	mKinCharRun.reset();
+	mKinCharWalk.reset();
 	BuildKinChar();
 
 	// For Multi Clips
@@ -228,8 +230,9 @@ double cSceneImitate::CalcReward(int agent_id) const
 		{
 			rs.at(i + 1) = CalcRewardImitate(*sim_char, *mKinCharsForMultiClips.at(i));
 		}
-		std::vector<double>::iterator maxIt = std::max_element(rs.begin(), rs.end());
-		max_id = std::distance(rs.begin(), maxIt);
+                // デフォルトの動作を学習するため、コメントアウト
+		// std::vector<double>::iterator maxIt = std::max_element(rs.begin(), rs.end());
+		// max_id = std::distance(rs.begin(), maxIt);
 		r = rs.at(max_id);
 	}
 	// std::cout << __func__ << ", " << max_id << std::endl;
@@ -347,6 +350,7 @@ void cSceneImitate::BuildKinChar()
 {
 	// std::cout << __func__ << std::endl;
 	bool succ = BuildKinCharacter(0, mKinChar);
+        mKinCharWalk = mKinChar;
 	if (!succ)
 	{
 		printf("Failed to build kin character\n");
@@ -390,6 +394,7 @@ void cSceneImitate::BuildKinCharsForMultiClips()
 			assert(false);
 		}
 	}
+        mKinCharRun = mKinCharsForMultiClips.at(0);
 }
 
 bool cSceneImitate::BuildKinCharactersForMultiClips(int id, std::shared_ptr<cKinCharacter>& out_char) const
@@ -420,7 +425,17 @@ void cSceneImitate::UpdateCharacters(double timestep)
 	// human_walkの速度が1.0m/s
 	// double time_step_coeff = sim_char->GetCOMVelocity() / 1.0;
 	// human_runの速度がm/s
-	double time_step_coeff = sim_char->GetCOMVelocity() / 3.48;
+	// double time_step_coeff = sim_char->GetCOMVelocity() / 3.48;
+        double time_step_coeff = 0.0;
+        if (sim_char->GetCOMVelocity() > 2.0)
+        {
+                time_step_coeff = sim_char->GetCOMVelocity() / 3.48;
+        }
+        else
+        {
+                time_step_coeff = sim_char->GetCOMVelocity() / 1.00;
+        }
+
 	// 最初のループでCOMVelocityが0になっていることの暫定対策
 	if (time_step_coeff < 0.5)
 	{
@@ -429,7 +444,11 @@ void cSceneImitate::UpdateCharacters(double timestep)
 	double modified_time_step = timestep * time_step_coeff;
 	UpdateKinChar(modified_time_step);
 
-	// std::cout << __func__ << ":" << mUpdateCount << ", " << timestep << ", " << modified_time_step << std::endl;
+	// std::cout << __func__ << ":" << sim_char->GetCOMVelocity() << ", " << timestep << ", " << modified_time_step << std::endl;
+        // const auto& kin_char = GetKinChar();
+	// double dur = kin_char->GetMotionDuration();
+
+        // std::cout << dur << std::endl;
 
 	// Multi clipsのphaseを揃える
 	SyncKinCharsForMultiClips();
@@ -486,6 +505,26 @@ void cSceneImitate::ResetCharacters()
 void cSceneImitate::ResetKinChar()
 {
 	// std::cout << __func__ << std::endl;
+        double rand_velocity = 0.0;
+	if (EnabledRandVelocityReset())
+	{
+                rand_velocity = mRand.RandDouble(0.8, 3.6);
+                //double rand_velocity = mRand.RandDouble(0.8, 1.2);
+                //double rand_velocity = mRand.RandDouble(2.5, 3.8);
+                //double rand_velocity = 1.0;
+		const auto& sim_char = GetCharacter();
+		sim_char->SetCOMVelocity(rand_velocity);
+	}
+
+        if (rand_velocity > 2.0)
+        {
+                mKinChar = mKinCharRun;
+        }
+        else
+        {
+                mKinChar = mKinCharWalk;
+        }
+
 	double rand_time = CalcRandKinResetTime();
 
 	const cSimCharacter::tParams& char_params = mCharParams[0];
@@ -503,15 +542,6 @@ void cSceneImitate::ResetKinChar()
 		kin_char->RotateOrigin(cMathUtil::EulerToQuaternion(tVector(0, rand_theta, 0, 0)));
 	}
 
-	if (EnabledRandVelocityReset())
-	{
-                //double rand_velocity = mRand.RandDouble(0.8, 3.6);
-                //double rand_velocity = mRand.RandDouble(0.8, 1.2);
-                double rand_velocity = mRand.RandDouble(2.5, 3.8);
-                //double rand_velocity = 1.0;
-		const auto& sim_char = GetCharacter();
-		sim_char->SetCOMVelocity(rand_velocity);
-	}
 }
 
 void cSceneImitate::SyncCharacters()
