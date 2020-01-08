@@ -418,7 +418,9 @@ void cSceneImitate::UpdateCharacters(double timestep)
 	// 目標歩行速度に応じて，Refernceのモーションを早回しにする
 	const auto& sim_char = GetCharacter();
 	// human_walkの速度が1.0m/s
-	double time_step_coeff = sim_char->GetCOMVelocity() / 1.0;
+	// double time_step_coeff = sim_char->GetCOMVelocity() / 1.0;
+	// human_runの速度がm/s
+	double time_step_coeff = sim_char->GetCOMVelocity() / 3.48;
 	// 最初のループでCOMVelocityが0になっていることの暫定対策
 	if (time_step_coeff < 0.5)
 	{
@@ -504,7 +506,8 @@ void cSceneImitate::ResetKinChar()
 	if (EnabledRandVelocityReset())
 	{
                 //double rand_velocity = mRand.RandDouble(0.8, 3.6);
-                double rand_velocity = mRand.RandDouble(0.8, 1.2);
+                //double rand_velocity = mRand.RandDouble(0.8, 1.2);
+                double rand_velocity = mRand.RandDouble(2.5, 3.8);
                 //double rand_velocity = 1.0;
 		const auto& sim_char = GetCharacter();
 		sim_char->SetCOMVelocity(rand_velocity);
